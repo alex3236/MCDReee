@@ -1,3 +1,5 @@
+**中文** | [`English`](README.md)
+
 # MCDReee
 
 ![预览](doc/image.png)
