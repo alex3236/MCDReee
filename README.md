@@ -1,5 +1,7 @@
 # MCDReee
 
+![Preview](doc/image.png)
+
 Your next MCDReforged installer.
 
 ## Features
