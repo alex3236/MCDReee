@@ -43,7 +43,7 @@ pub fn execute(command: &str, args: Vec<&str>) -> Result<(), PerformError> {
 }
 
 pub fn install_python(version: String) -> Result<(), PerformError> {
-    println!("Downloading Python {}...", version);
+    println!("{}", t!("perform.download_py", "ver" => version));
     match util::download_file(&util::python_url(Some(&version)), "python-installer.exe") {
         Ok(_) => (),
         Err(e) => return Err(PerformError::DownloadError(e)),
@@ -51,8 +51,7 @@ pub fn install_python(version: String) -> Result<(), PerformError> {
     cprintln(
         Color::Cyan,
         "
-* A Python install wizard shall launch.
-* Follow the wizard until Python installation complete.
+
 ",
     );
     let result = execute(
@@ -69,7 +68,7 @@ pub fn install_python(version: String) -> Result<(), PerformError> {
 }
 
 pub fn install_mcdr() -> Result<(), PerformError> {
-    println!("Installing / Upgrading MCDReforged...");
+    println!("{}", t!("install_mcdr"));
     execute(
         "pip",
         vec![
@@ -84,7 +83,7 @@ pub fn install_mcdr() -> Result<(), PerformError> {
 }
 
 pub fn initilize_mcdr() -> Result<(), PerformError> {
-    println!("Initializing MCDReforged...");
+    println!("{}", t!("perform.init_mcdr"));
     execute("python", vec!["-m", "mcdreforged", "init"])?;
     let mut f = File::create("start.bat")?;
     f.write_all(
@@ -95,19 +94,7 @@ python -m mcdreforged
 pause
 ",
     )?;
-    cprintln(
-        Color::Cyan,
-        "
-* MCDReforged has been successfully initialized.
-* Remember you can initialize multiple MCDR instance in different folders.
-
-* MCDR is not a complete environment.
-* Place a Minecraft server in the `server` folder and edit `config.yml` to make MCDR work properly.
-* Read <https://mcdreforged.rtfd.io/en/latest/configuration.html> for further information.
-
-* Use `start.bat` to start MCDReforged when you are ready.
-",
-    );
+    cprintln(Color::Cyan, &t!("message.mcdr_init"));
     Ok(())
 }
 
@@ -117,23 +104,26 @@ pub fn install_modules() -> Result<(), PerformError> {
         let mut menu_vec = vec![
             // label("Install / Upgrade PyPI modules"),
             label(""),
-            string("Modules to install", "|none|", false),
+            string(t!("menu.pypi.input"), "|none|", false),
             label(""),
-            button("Perform Install"),
+            button(t!("menu.pypi.install")),
             back_button("Back"),
             label(""),
         ];
         if !validate {
-            menu_vec.push(label("Invalid Input.").colorize(Color::Red));
+            menu_vec.push(label(t!("menu.pypi.invalid")).colorize(Color::Red));
         }
         let menu = menu(menu_vec);
         run(&menu);
         let menu_ref = mut_menu(&menu);
-        let modules = menu_ref.selection_value("Modules to install");
+        if menu_ref.selected_item_name() != t!("menu.pypi.install") {
+            break;
+        }
+        let modules = menu_ref.selection_value(&t!("menu.pypi.input"));
         if util::validate_modules(modules) {
             let mut args = vec!["-m", "pip", "install", "-U"];
             args.extend(modules.split(" "));
-            println!("Installing {}...", modules);
+            println!("{}", t!("menu.pypi.installing", "module" => modules));
             execute("python", args)?;
             break;
         } else {

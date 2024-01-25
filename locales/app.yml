@@ -1,0 +1,195 @@
+_version: 2
+desc:
+  en: Your next MCDReforged installer. ver %{version}
+  zh-CN: 你的下一个 MCDReforged 安装器. ver %{version}
+
+menu:
+  main:
+    install_py:
+      en: Install Python
+      zh-CN: 安装 Python
+    install_mcdr:
+      en: Install MCDReforged
+      zh-CN: 安装 MCDReforged
+    init_mcdr:
+      en: Initialize MCDReforged
+      zh-CN: 初始化 MCDReforged
+    upgrade_mcdr:
+      en: Upgrade MCDReforged
+      zh-CN: 升级 MCDReforged
+    pypi:
+      en: Install / Upgrade PyPI modules
+      zh-CN: 安装 / 升级 PyPI 模块
+    console:
+      en: Open Console
+      zh-CN: 命令提示符
+    configure:
+      en: Configure installation
+      zh-CN: 高级设置
+
+  config:
+    title:
+      en: Configurations
+      zh-CN: 配置
+    py_ver:
+      en: Python version
+      zh-CN: Python 版本
+    init:
+      en: Initialize after install
+      zh-CN: 安装后，在当前目录初始化
+  pypi:
+    input:
+      en: Modules to install
+      zh-CN: 要安装的模块
+    install:
+      en: Perform Install
+      zh-CN: 安装
+    invalid:
+      en: Invalid Input.
+      zh-CN: 输入不合法.
+    installing:
+      en: Installing %{module}...
+      zh-CN: 正在安装 %{module}...
+  back:
+    en: Back
+    zh-CN: 返回
+  exit:
+    en: Exit
+    zh-CN: 退出
+
+fetch:
+  mcdr:
+    en: Fetching MCDReforged metadata...
+    zh-CN: 正在获取 MCDReforged 元数据...
+  py:
+    en: Fetching Python versions...
+    zh-CN: 正在获取 Python 版本列表...
+  error:
+    en: "Error fetching: %{err}"
+    zh-CN: "获取失败：%{err}"
+  parse_err:
+    en: "Error parsing response: %{err}"
+    zh-CN: "版本列表处理失败：%{err}"
+  menu:
+    en: Displaying menu...
+    zh-CN: 正在显示菜单...
+
+check.env:
+  title:
+    en: "Environment Check:"
+    zh-CN: "环境检查："
+  not_blank:
+    en: Folder is not empty.
+    zh-CN: 文件夹不为空
+  blank_desc:
+    en: It's advisable to run this in an empty folder.
+    zh-CN: 建议在空文件夹中运行
+
+check.py:
+  installed:
+    en: "Python installed: %{ver}"
+    zh-CN: "Python 已安装：%{ver}"
+  nil:
+    en: Python not detected.
+    zh-CN: 未检测到 Python
+  nil_desc:
+    en: If you have python installed, It is recommended to uninstall it before continue.
+    zh-CN: 如果已安装 Python，建议卸载后再继续
+  outdated:
+    en: Python incompatible
+    zh-CN: Python 不兼容
+  outdated_desc:
+    en: It is recommended to uninstall it before continue.
+    zh-CN: 建议卸载已有 Python 后再继续
+
+check.mcdr:
+  installed:
+    en: "MCDReforged installed: %{ver}"
+    zh-CN: "MCDReforged 已安装：%{ver}"
+  nil:
+    en: MCDReforged not detected.
+    zh-CN: 未检测到 MCDReforged
+  outdated:
+    en: MCDReforged outdated
+    zh-CN: MCDReforged 有新版本可用
+  initialized:
+    en: MCDReforged initialized
+    zh-CN: MCDReforged 已初始化
+  no_pip:
+    en: We found a Python but with no pip. Uninstall it before continue.
+    zh-CN: 找到 Python 但未安装 pip。建议卸载 Python 后再继续
+
+message:
+  py_setup:
+    en: |
+      * A Python install wizard shall launch.
+      * Follow the wizard until Python installation complete.
+    zh-CN: |
+      * 你应该已经看到了一个 Python 安装向导
+      * 通过向导完成 Python 安装
+  py_install:
+    en: |
+      * Python installed successfully.
+      * You may close this window, and run MCDReee again to install MCDReforged.
+    zh-CN: |
+      * Python 安装成功.
+      * 你可以关闭此窗口，重新运行 MCDReee 以安装 MCDReforged.
+  mcdr_install:
+    en: |
+      * MCDReforged installed successfully.
+      * You may restart MCDReee to initialize it, or do it yourself.
+    zh-CN: |
+      * MCDReforged 安装成功.
+      * 你可以手动初始化，或者重启 MCDReee 以执行初始化.
+  mcdr_upgrade:
+    en: |
+      * MCDReforged has been upgraded.
+      * Running instances will not be affected before restart.
+    zh-CN: |
+      * MCDReforged 已升级
+      * 正在运行的 MCDR 实例在重启前不受影响
+  mcdr_init:
+    en: |
+      * MCDReforged has been successfully initialized.
+      * Remember you can initialize multiple MCDR instance in different folders.
+
+      * MCDR is not a complete environment.
+      * Place a Minecraft server in the `server` folder and edit `config.yml` to make MCDR work properly.
+      * Read <https://mcdreforged.rtfd.io/en/latest/configuration.html> for further information.
+
+      * Use `start.bat` to start MCDReforged when you are ready.
+    zh-CN: |
+      * MCDReforged 已成功初始化
+      * 您可以在不同文件夹初始化多个 MCDR 实例
+
+      * 请留意，MCDR 不是一个完整的环境
+      * 在 `server` 文件夹中放置一个 Minecraft 服务端，并编辑 `config.yml` 来使 MCDR 正常运行
+      * 详见 <https://mcdreforged.rtfd.io/en/latest/configuration.html>
+
+      * 当你准备好时，使用 `start.bat` 启动 MCDReforged
+  setup_done:
+    en: |
+      * Keep MCDReee to upgrade MCDReforged and/or install pip modules,
+      * or feel free to delete it.
+    zh-CN: |
+      * 保留 MCDReee 以升级 MCDReforged / 安装 pip 模块
+      * 或者放心删除 MCDReee
+
+util:
+  downloading:
+    en: Downloading %{file}
+    zh-CN: 正在下载 %{file}
+  downloaded:
+    en: Download finished %{file}
+    zh-CN: 下载完成 %{file}
+
+perform:
+  download_py:
+    en: Downloading Python %{ver}...
+    zh-CN: 正在下载 Python %{ver}...
+  install_py:
+    en: Installing / Upgrading MCDReforged...
+    zh-CN: 正在安装 / 升级 MCDReforged...
+  init_mcdr:
+    en: Initializing MCDReforged...
+    zh-CN: 正在初始化 MCDReforged...

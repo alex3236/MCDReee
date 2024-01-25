@@ -17,4 +17,4 @@ Download and run `MCDReee.exe`.
 ## TODO
 
 - [ ] Show main menu again when perform finished
-- [ ] i18n
+- [x] i18n

@@ -191,7 +191,7 @@ pub async fn _download_file(url: &str, path: &str) -> Result<(), DownloadError> 
         .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
         .unwrap()
         .progress_chars("#>-"));
-    pb.set_message(format!("Downloading {}", path));
+    pb.set_message(t!("util.downloading", "file" => path));
 
     // download chunks
     let mut file = File::create(path)?;
@@ -206,7 +206,7 @@ pub async fn _download_file(url: &str, path: &str) -> Result<(), DownloadError> 
         pb.set_position(new);
     }
 
-    pb.finish_with_message(format!("Downloaded {}", path));
+    pb.finish_with_message(t!("util.downloaded", "file" => path));
     return Ok(());
 }
 

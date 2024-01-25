@@ -1,11 +1,13 @@
 use crossterm::style::Color;
 use pep440_rs::{parse_version_specifiers, Version};
+use rust_i18n::t;
 use serde::{Deserialize, Serialize};
 use std::{process::exit, str::FromStr};
-use terminal_menu::{
-    back_button, button, label, list, menu, mut_menu, run, scroll, submenu,
-};
+use terminal_menu::{back_button, button, label, list, menu, mut_menu, run, scroll, submenu};
 use util::PythonVersion;
+
+#[macro_use]
+extern crate rust_i18n;
 
 use crate::{
     perform::uncheck,
@@ -30,7 +32,15 @@ macro_rules! crate_version {
     };
 }
 
+i18n!("locales");
+
 fn main() {
+    if sys_locale::get_locale()
+        .unwrap_or_default()
+        .starts_with("zh")
+    {
+        rust_i18n::set_locale("zh-CN");
+    }
     let mut main_menu: Vec<terminal_menu::TerminalMenuItem> = vec![];
     r"
    __  ___________  ___             
@@ -41,17 +51,14 @@ fn main() {
     .lines()
     .for_each(|line| main_menu.push(label(line)));
     main_menu.extend([
-        label(format!(
-            "Your next MCDR installer. ver {}",
-            crate_version!()
-        )),
-        label("_"),
-        label("Environment Check:"),
+        label(t!("desc", "version" => crate_version!())),
+        label("*"),
+        label(t!("check.env.title")),
     ]);
     let mut config_menu: Vec<terminal_menu::TerminalMenuItem> = vec![
-        label("Configurations"),
-        label("_"),
-        back_button("Back"),
+        label(t!("menu.config.title")),
+        label("::"),
+        back_button(t!("menu.back")),
         label(""),
     ];
 
@@ -68,10 +75,10 @@ fn main() {
     let mut module_outdated = false;
     let mut module_initialized = false;
 
-    println!("Fetching MCDReforged metadata...");
+    println!("{}", t!("fetch.mcdr"));
     let mcdr_data = get_mcdr_data();
     if mcdr_data.is_err() {
-        println!("Error: {}", mcdr_data.err().unwrap());
+        println!("{}", t!("fetch.error", "err" => mcdr_data.err().unwrap()));
         util::panic_pause();
         return;
     }
@@ -79,20 +86,22 @@ fn main() {
 
     match util::check_python(&mcdr_data) {
         Ok(version) => {
-            main_menu
-                .push(label("  Python installed: ".to_string() + &version).colorize(Color::Green));
+            main_menu.push(
+                label(format!("  {}", t!("check.py.installed", "ver" => version)))
+                    .colorize(Color::Green),
+            );
             python_installed = true;
         }
         Err(PythonVersion::NotFound) => {
-            main_menu.push(label("  Python not detected.").colorize(Color::DarkYellow));
-            main_menu.push(label("    If you have python installed, It is recommended to uninstall it before continue.").colorize(Color::DarkYellow));
+            main_menu.push(label(format!("  {}", t!("check.py.nil"))).colorize(Color::DarkYellow));
+            main_menu.push(
+                label(format!("    {}", t!("check.py.nil_desc"))).colorize(Color::DarkYellow),
+            );
         }
         Err(PythonVersion::Outdated) => {
-            main_menu.push(label("  Python outdated").colorize(Color::Red));
-            main_menu.push(
-                label("    It is recommended to uninstall it before continue.")
-                    .colorize(Color::Red),
-            );
+            main_menu.push(label(format!("  {}", t!("check.py.outdated"))).colorize(Color::Red));
+            main_menu
+                .push(label(format!("    {}", t!("check.py.outdated_desc"))).colorize(Color::Red));
         }
     }
 
@@ -100,31 +109,37 @@ fn main() {
         match util::check_module(&mcdr_data) {
             Ok(version) => {
                 main_menu.push(
-                    label(format!("  MCDReforged installed: {}", version)).colorize(Color::Green),
+                    label(format!(
+                        "  {}",
+                        t!("check.mcdr.installed", "ver" => version)
+                    ))
+                    .colorize(Color::Green),
                 );
                 module_installed = true;
             }
             Err(MCDRResult::NoMCDR) => {
-                main_menu.push(label("  MCDReforged not detected.").colorize(Color::DarkYellow));
+                main_menu
+                    .push(label(format!("  {}", t!("check.mcdr.nil"))).colorize(Color::DarkYellow));
             }
             Err(MCDRResult::Outdated) => {
-                main_menu
-                    .push(label("  MCDReforged: Installed (Outdated)").colorize(Color::DarkYellow));
+                main_menu.push(
+                    label(format!("  {}", t!("check.mcdr.outdated"))).colorize(Color::DarkYellow),
+                );
                 module_outdated = true;
             }
             Err(MCDRResult::NoPip) => {
-                println!("We found a Python but with no pip. Uninstall it before continue.");
+                println!("{}", t!("check.mcdr.no_pip"));
                 util::panic_pause();
                 return;
             }
         }
     } else {
-        println!("Fetching Python versions...");
+        println!("{}", t!("fetch.py"));
         let mut python_versions: Vec<String> = Vec::new();
         let resp = match reqwest::blocking::get(util::python_url(None)) {
             Ok(r) => r.json::<Vec<Registry>>(),
             Err(e) => {
-                println!("Error fetching: {}", e);
+                println!("{}", t!("fetch.error", "err" => e.to_string()));
                 util::panic_pause();
                 return;
             }
@@ -146,7 +161,7 @@ fn main() {
                 }
             }
             Err(e) => {
-                println!("Error parsing response: {}", e);
+                println!("{}", t!("fetch.parse_err", "err" => e.to_string()));
                 util::panic_pause();
                 return;
             }
@@ -174,107 +189,77 @@ fn main() {
                 break;
             }
         }
-        config_menu.push(scroll("Python version", python_versions));
+        config_menu.push(scroll(t!("menu.config.py_ver"), python_versions));
     }
 
     if util::check_initialized() {
-        main_menu.push(label("  MCDReforged initialized").colorize(Color::Green));
+        main_menu.push(label(format!("  {}", t!("check.mcdr.initialized"))).colorize(Color::Green));
         module_initialized = true;
     } else {
         if util::check_empty_folder() {
-            main_menu.push(label("  Folder is not empty.").colorize(Color::Red));
-            main_menu.push(
-                label("    It's advisable to run this in an empty folder.").colorize(Color::Red),
-            )
+            main_menu.push(label(format!("  {}", t!("check.env.not_blank"))).colorize(Color::Red));
+            main_menu
+                .push(label(format!("    {}", t!("check.env.blank_desc"))).colorize(Color::Red))
         }
     }
 
-    main_menu.push(label("_"));
+    main_menu.push(label("::"));
     if !python_installed {
-        main_menu.push(button("Install Python"));
-        main_menu.push(submenu("Configure installation", config_menu));
+        main_menu.push(button(t!("menu.main.install_py")));
+        main_menu.push(submenu(t!("menu.main.configure"), config_menu));
     } else if !module_installed {
-        main_menu.push(button("Install MCDReforged"));
-        config_menu.push(list("Initialize after install", vec!["yes", "no"]));
-        main_menu.push(submenu("Configure installation", config_menu));
+        main_menu.push(button(t!("menu.main.install_mcdr")));
+        config_menu.push(list(t!("menu.config.init"), vec!["yes", "no"]));
+        main_menu.push(submenu(t!("menu.main.configure"), config_menu));
     } else {
         if !module_initialized {
-            main_menu.push(button("Initialize MCDReforged"));
+            main_menu.push(button(t!("menu.main.init_mcdr")));
         }
         if module_outdated {
-            main_menu.push(button("Upgrade MCDReforged"));
+            main_menu.push(button(t!("menu.main.upgrade_mcdr")));
         }
-        main_menu.push(button("Install / Upgrade PyPI modules"));
-        main_menu.push(button("Open Console"));
+        main_menu.push(button(t!("menu.main.pypi")));
+        main_menu.push(button(t!("menu.main.console")));
     }
 
-    main_menu.push(back_button("Exit"));
+    main_menu.push(back_button(t!("menu.exit")));
 
-    println!("Displaying menu...");
+    println!("{}", t!("fetch.menu"));
 
     let menu = menu(main_menu);
     run(&menu);
 
     let mut menu_ref = mut_menu(&menu);
 
-    match menu_ref.selected_item_name() {
-        "Install Python" => {
-            let submenu = menu_ref.get_submenu("Configure installation");
-            let version = submenu.selection_value("Python version");
-            uncheck(perform::install_python(version.to_string()));
-            cprintln(
-                Color::Cyan,
-                "
-* Python installed successfully.
-* You may close this window, and run MCDReee again to install MCDReforged.
-",
-            );
-        }
-        "Install MCDReforged" => {
-            uncheck(perform::install_mcdr());
-            let submenu = menu_ref.get_submenu("Configure installation");
-            if submenu.selection_value("Initialize after install") == "yes" {
-                uncheck(perform::initilize_mcdr());
-            } else {
-                cprintln(
-                    Color::Cyan,
-                    "
-* MCDReforged installed successfully.
-* You may restart MCDReee to initialize it, or do it yourself.
-",
-                );
-            }
-            cprintln(
-                Color::Cyan,
-                "
-* Keep MCDReee to upgrade MCDReforged and/or install pip modules,
-* or feel free to delete it.
-",
-            );
-        }
-        "Initialize MCDReforged" => {
+    let selected = menu_ref.selected_item_name();
+
+    // match menu_ref.selected_item_name() {
+    if selected == t!("menu.main.install_py") {
+        let submenu = menu_ref.get_submenu(&t!("menu.main.configure"));
+        let version = submenu.selection_value(&t!("menu.config.py_ver"));
+        uncheck(perform::install_python(version.to_string()));
+        cprintln(Color::Cyan, &t!("message.py_install"));
+    } else if selected == t!("menu.main.install_mcdr") {
+        uncheck(perform::install_mcdr());
+        let submenu = menu_ref.get_submenu(&t!("menu.main.configure"));
+        if submenu.selection_value(&t!("menu.config.init")) == "yes" {
             uncheck(perform::initilize_mcdr());
+        } else {
+            cprintln(Color::Cyan, &t!("message.mcdr_install"));
         }
-        "Upgrade MCDReforged" => {
-            uncheck(perform::install_mcdr());
-            cprintln(
-                Color::Cyan,
-                "
-* MCDReforged has been upgraded.
-* Running instances will not be affected before restart.
-",
-            );
-        }
-        "Install / Upgrade PyPI modules" => {
-            uncheck(perform::install_modules());
-        }
-        "Open Console" => {
-            uncheck(perform::open_console());
-            exit(0); // !fixme: wrong handle
-        }
-        _ => {
-            exit(0);
-        }
+        cprintln(Color::Cyan, &t!("message.setup_done"));
+    } else if selected == t!("menu.main.init_mcdr") {
+        uncheck(perform::initilize_mcdr());
+    } else if selected == t!("menu.main.upgrade_mcdr") {
+        uncheck(perform::install_mcdr());
+        cprintln(Color::Cyan, &t!("message.mcdr_upgrade"));
+    } else if selected == t!("menu.main.pypi") {
+        uncheck(perform::install_modules());
+    } else if selected == t!("menu.main.console") {
+        uncheck(perform::open_console());
+        exit(0); // !fixme: wrong handle
+    } else {
+        exit(0);
     }
     util::pause();
 }
