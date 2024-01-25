@@ -16,7 +16,7 @@
 
 ## 使用方法
 
-下载并运行 `MCDReee.exe`（TODO）。
+下载并运行 `MCDReee.exe`。
 
 ## TODO
 

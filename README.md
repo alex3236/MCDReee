@@ -16,7 +16,7 @@ This project is a whim in my Rust learning. Well, it works on my machine.
 
 ## Usage
 
-Download and run `MCDReee.exe` (TODO).
+Download and run `MCDReee.exe`.
 
 ## TODO
 
