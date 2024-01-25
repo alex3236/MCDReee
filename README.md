@@ -1,8 +1,12 @@
+`[中文](README_cn.md)`
+
 # MCDReee
 
 ![Preview](doc/image.png)
 
 Your next MCDReforged installer.
+
+This project is a whim in my Rust learning. Well, it works on my machine.
 
 ## Features
 - Install Python and MCDReforged
@@ -12,7 +16,7 @@ Your next MCDReforged installer.
 
 ## Usage
 
-Download and run `MCDReee.exe`.
+Download and run `MCDReee.exe` (TODO).
 
 ## TODO
 
