@@ -155,7 +155,7 @@ message:
 
       * MCDR is not a complete environment.
       * Place a Minecraft server in the `server` folder and edit `config.yml` to make MCDR work properly.
-      * Read <https://mcdreforged.rtfd.io/en/latest/configuration.html> for further information.
+      * Read <https://docs.mcdreforged.com/en/latest/configuration.html> for further information.
 
       * Use `start.bat` to start MCDReforged when you are ready.
     zh-CN: |
@@ -164,7 +164,7 @@ message:
 
       * 请留意，MCDR 不是一个完整的环境
       * 在 `server` 文件夹中放置一个 Minecraft 服务端，并编辑 `config.yml` 来使 MCDR 正常运行
-      * 详见 <https://mcdreforged.rtfd.io/en/latest/configuration.html>
+      * 详见 <https://docs.mcdreforged.com/zh-cn/latest/configuration.html>
 
       * 当你准备好时，使用 `start.bat` 启动 MCDReforged
   setup_done:
