@@ -4,6 +4,7 @@ use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
 use pep440_rs::{parse_version_specifiers, Version};
 use regex::Regex;
+use reqwest::blocking::Client as BlockingClient;
 use reqwest::Client;
 use reqwest::Error;
 use serde::{Deserialize, Serialize};
@@ -19,6 +20,7 @@ static PYTHON_REGEX: &str = r"Python (\d+\.\d+\.\d+)";
 static MCDR_REGEX: &str = r"Version: (\d+\.\d+\.?\d+?)";
 static MODULE_REGEX: &str = r"^([0-9A-Za-z\.\*~=><\[\]]+ *)+$";
 static MCDR_URL: &str = "https://mirrors.bfsu.edu.cn/pypi/web/json/mcdreforged";
+pub static CHROME_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36";
 
 pub fn python_url(version: Option<&str>) -> String {
     if let Some(v) = version {
@@ -77,7 +79,7 @@ pub struct MCDRMetadata {
 }
 
 pub fn get_mcdr_data() -> Result<MCDRMetadata, Error> {
-    match reqwest::blocking::get(MCDR_URL) {
+    match blocking_client()?.get(MCDR_URL).send() {
         Ok(r) => match r.json::<PyPIData>() {
             Ok(j) => return Ok(j.info),
             Err(e) => return Err(e),
@@ -181,7 +183,7 @@ pub async fn _download_file(url: &str, path: &str) -> Result<(), DownloadError> 
     // https://gist.github.com/giuliano-oliveira/4d11d6b3bb003dba3a1b53f43d81b30d
 
     // Reqwest setup
-    let client = Client::new();
+    let client = async_client()?;
     let res = client.get(url).send().await?;
     let total_size = res.content_length().unwrap();
 
@@ -212,4 +214,14 @@ pub async fn _download_file(url: &str, path: &str) -> Result<(), DownloadError> 
 
 pub fn validate_modules(modules: &str) -> bool {
     Regex::new(MODULE_REGEX).unwrap().is_match(modules)
+}
+
+pub fn blocking_client() -> Result<BlockingClient, Error> {
+    BlockingClient::builder()
+        .user_agent(CHROME_USER_AGENT)
+        .build()
+}
+
+fn async_client() -> Result<Client, Error> {
+    Client::builder().user_agent(CHROME_USER_AGENT).build()
 }
