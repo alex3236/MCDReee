@@ -136,8 +136,15 @@ fn main() {
     } else {
         println!("{}", t!("fetch.py"));
         let mut python_versions: Vec<String> = Vec::new();
-        let resp = match reqwest::blocking::get(util::python_url(None)) {
-            Ok(r) => r.json::<Vec<Registry>>(),
+        let resp = match util::blocking_client() {
+            Ok(client) => match client.get(util::python_url(None)).send() {
+                Ok(r) => r.json::<Vec<Registry>>(),
+                Err(e) => {
+                    println!("{}", t!("fetch.error", "err" => e.to_string()));
+                    util::panic_pause();
+                    return;
+                }
+            },
             Err(e) => {
                 println!("{}", t!("fetch.error", "err" => e.to_string()));
                 util::panic_pause();
